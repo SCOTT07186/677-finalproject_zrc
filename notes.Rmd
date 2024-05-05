@@ -1,0 +1,525 @@
+---
+title: "Study notes"
+author: "Ruicheng Zhang"
+output: pdf_document
+---
+
+```{r setup, include=FALSE, echo=FALSE}
+knitr::opts_chunk$set(echo = TRUE,warning=FALSE,message = FALSE)
+options(buildtools.check = function(action) TRUE)
+library(dplyr)
+library(knitr)
+library(tidyverse)
+library(stringr)
+library(ggplot2)
+library(rstan)
+library(combinat)
+```
+
+# Table of Contents
+1. Introduction
+   - Overview
+   - Chapter Summary
+2. Chapter's Main Points
+   - Topic Overview
+   - Key Points Summary
+3. Mathematical Foundations
+4. Computational Methods and Implementation
+5. Historical Background
+6. Conclusion
+7. References
+
+
+# 1 Introduction
+
+## Overview
+
+This set of study notes focuses on Chapter 6 from Elementary Decision Theory, which discusses the computational aspects of Bayes strategies in the context of decision theory. The chapter provides an in-depth look at how these strategies can be computed more efficiently using a posteriori probabilities, offering insights into their practical application in statistical analysis and decision-making processes.
+
+## Chapter Summary
+
+Chapter 6 is a critical exploration of how Bayes strategies, originally theoretical constructs in decision theory, can be adapted for practical computational use. By shifting from a priori to a posteriori probability calculations, the chapter addresses the complexities and challenges associated with applying these strategies in real-world scenarios. This transition not only simplifies the computational process but also enhances the adaptability of the strategies to dynamic data, making them more relevant and applicable to modern statistical practices.
+
+The key contributions of this chapter are:
+- A methodological shift in computing Bayes strategies, enhancing practical applicability.
+- Detailed discussion on the role of admissible strategies in statistical decision-making, highlighting how Bayes strategies can identify these effectively.
+- An emphasis on computational efficiency, which is crucial for the practical deployment of statistical methodologies in dynamic and data-intensive environments.
+
+Through this chapter, readers are expected to gain a comprehensive understanding of the theoretical underpinnings of Bayes strategies and their computational implementations, bridging the gap between theory and practice in statistical decision-making.
+
+# 2 Chapter's Main Points
+
+## Topic Overview
+
+Chapter 6 delves into the computational aspects of Bayes strategies, a cornerstone in statistical decision theory. It outlines the processes involved in replacing a priori probabilities with a posteriori probabilities as data becomes available, facilitating easier computation of these strategies.
+
+## Key Points Summary
+
+- **Bayes Strategies Computation**: The chapter highlights methods for simplifying the computation of Bayes strategies by utilizing a posteriori probabilities, enhancing the feasibility of their practical application.
+- **Admissible Strategies**: It explores how Bayes strategies help in identifying admissible strategies within decision theory, providing a clearer pathway for statistical decision-making.
+- **Computational Efficiency**: The transition from a priori to a posteriori probabilities as new data is observed is emphasized as a means to reduce computational overhead and increase the efficiency of strategy implementation in real-world scenarios.
+
+This overview serves to scaffold further discussion on the mathematical formulations, computational methods, and the historical context of Bayes strategies, as well as their implications in modern statistical practices.
+
+# 3 Mathematical Foundations
+
+This section focuses on the mathematical principles underlying the computational methods discussed in Chapter 6, particularly those related to Bayes strategies. I will explore the relevant probability theories, the formulation of Bayes' theorem in the context of decision-making, and provide examples illustrating these mathematical concepts.
+
+**Definition:** A multivariate normal random vector $X = (X_1, X_2, \ldots, X_n)$ in $R^n$ has a joint normal distribution if every linear combination of its components has a univariate normal distribution. The probability density function of vector $X$ is given by:
+
+$$
+f_X(x_1, x_2, \ldots, x_n) = \frac{1}{\sqrt{(2\pi)^n |\Sigma|}} \exp \left(-\frac{1}{2} (x-\mu)^T \Sigma^{-1} (x-\mu)\right)
+$$
+
+where $\mu$ is the mean vector and $\Sigma$ is the covariance matrix.
+
+## Probability Theory and Bayes' Theorem
+
+Bayes' theorem plays a crucial role in understanding and implementing Bayes strategies. It is the foundation upon which posterior probabilities are calculated. The theorem is expressed as follows:
+
+$$ P(A \mid B) = \frac{P(B \mid A) P(A)}{P(B)} $$
+
+Where:
+- \( P(A \mid B) \) is the probability of event A given that B is true.
+- \( P(B \mid A) \) is the probability of event B given that A is true.
+- \( P(A) \) and \( P(B) \) are the probabilities of observing A and B independently of each other.
+
+## Example 1: Testing the Mean
+
+Suppose we have a multivariate normal distribution $X \sim N(\mu, \Sigma)$, and we are testing the hypothesis $H_0: \mu = \mu_0$ against $H_1: \mu \neq \mu_0$.
+
+**Bayesian Test Statistic:**
+
+$$
+T = (X - \mu_0)^T \Sigma^{-1} (X - \mu_0)
+$$
+
+If $T$ exceeds a certain threshold, we reject $H_0$.
+
+## Example 2: Comparing Two Means
+
+Consider two independent samples from two multivariate normal distributions, $X \sim N(\mu_X, \Sigma)$ and $Y \sim N(\mu_Y, \Sigma)$, and we want to test $H_0: \mu_X = \mu_Y$ against $H_1: \mu_X \neq \mu_Y$.
+
+**Pooled Covariance Matrix:**
+
+$$
+S_p = \frac{(n_X - 1)S_X + (n_Y - 1)S_Y}{n_X + n_Y - 2}
+$$
+
+**Test Statistic:**
+
+$$
+T = \sqrt{\frac{n_X n_Y}{n_X + n_Y}} (\bar{X} - \bar{Y})^T S_p^{-1} (\bar{X} - \bar{Y})
+$$
+
+Where $\bar{X}$ and $\bar{Y}$ are sample means, and $S_X$ and $S_Y$ are sample covariance matrices.
+
+By organizing your R Markdown document in this way, you can effectively communicate the theoretical and practical aspects of the material covered in Chapter 6 of your studies.
+
+## Example 3: Computation of Bayes Strategies
+
+Consider a scenario from the chapter where a decision-maker needs to choose a strategy based on uncertain information regarding market conditions. Let:
+- \( A \) represent a favorable market condition.
+- \( B \) represent the observed data suggesting a rise in market demand.
+
+If historical data suggests that:
+- The probability of observing a rise in demand (\( B \)) when the market is favorable (\( A \)) is 0.7 (\( P(B \mid A) = 0.7 \)).
+- The probability of a favorable market (\( A \)) is 0.5 (\( P(A) = 0.5 \)).
+- The overall probability of observing a rise in demand (\( B \)) is 0.65 (\( P(B) = 0.65 \)).
+
+Using Bayes' theorem, the posterior probability of a favorable market given a rise in demand is computed as:
+
+$$ P(A \mid B) = \frac{0.7 \times 0.5}{0.65} \approx 0.5385 $$
+
+This probability can be used to decide whether to adopt a more aggressive marketing strategy, assuming that a higher probability of favorable market conditions justifies increased expenditure on marketing efforts.
+
+## Mathematical Interpretation and Implications
+
+The example above shows how Bayes' theorem allows decision-makers to update their beliefs in light of new evidence. This is a critical aspect of statistical decision theory, where decisions must often be made under conditions of uncertainty.
+
+Through these calculations, the mathematical foundations not only support the understanding of how decisions are influenced by new data but also illustrate the practical implications of Bayes strategies in real-world decision-making scenarios.
+
+# 4 Computational Methods and Implementation
+
+In this section, I focus on implementing Bayes strategies using R, a powerful tool for statistical computing and graphics. I will introduce the relevant R package and provide a script example that calculates the posterior probability of a favorable market condition given new data on market demand.
+
+## Applicable R Packages
+
+For implementing Bayes strategies in R, the `stats` package, which is part of the base R distribution, provides extensive functionalities for statistical calculations, including those needed for Bayes' theorem. Additionally, the `MCMCpack` package can be used for more complex Bayesian statistical modeling and Markov Chain Monte Carlo methods, although for our current needs, `stats` will suffice.
+
+To perform Bayesian analysis in R, several packages are available that facilitate the modeling and computation of Bayesian statistics:
+
+- **`rjags`**: Interface to the JAGS library for Bayesian data analysis.
+- **`bayesplot`**: Provides plotting functions for various types of Bayesian models.
+- **`MCMCpack`**: Contains functions to perform Bayesian inference using Markov chain Monte Carlo.
+- **`BRMS`**: An R package that allows the fitting of complex statistical models using Stan.
+
+```{r}
+library("MCMCpack")
+```
+## Example 1: Bayesian Estimation of a Mean
+
+Suppose we have a sample from a normal distribution and we want to estimate the mean using a Bayesian approach with a normal prior.
+
+**R Code:**
+
+```{r}
+# Load necessary library
+library(MCMCpack)
+
+# Define the data
+data <- c(4.5, 5.0, 5.5, 6.0, 6.5)
+
+# Define prior parameters
+prior_mean <- 5
+prior_precision <- 1 / 4
+
+# Define an estimate of the variance of the data
+# You might adjust this based on additional data or domain knowledge
+data_variance <- var(data)
+
+# Set the number of Monte Carlo samples
+mc_samples <- 1000
+
+# Perform Bayesian estimation of the mean using MCnormalnormal
+result <- MCnormalnormal(data, sigma2 = data_variance, mu0 = prior_mean, tau20 = prior_precision, mc = mc_samples)
+summary(result)
+```
+
+## Example 2
+Consider the target distribution
+    $p(z)=\frac{2e^{z}}{(1+e^z)^2},~~~~~~~~~~z\ge0$ Our goal is to
+    evaluate $\mathbb{P}(Z>1)$ using rejection sampling.
+
+a)  We first need to find a proposal density, $q(z)$, that is easy
+        to simulate from, and constant $C$, such that
+        $p(z)\le Cq(z),~~~~~~~~~~z\ge0$ To do this, we pay attention
+        to the tail of $p$. the tail is $e^{-z}$. Hence, we can choose
+        $q$ to be exponential distribution $exp(1)$. What is the best
+        choice for $C$? plot $p(z)$ and $Cq(z)$, and visually show that
+        the condition $p(z)\le Cq(z)$ is satisfied for your choice of
+        $C$.
+to find $q(z)$ that satisfied $p(z) \leq Cq(z)$
+$\frac{2e^{z}}{(1+e^{z})^2} \leq Ce^{-z}$
+so$C \ge \frac{2e^{z} \cdot e^{z}}{(1+e^{z})^2}$
+```{r}
+library(cowplot)
+pp <- function(z) {(2*exp(z))/((1+exp(z))^2)}
+qq <- function(z) { exp(-z)}
+z1 <- seq(0, 10, by = 0.01) 
+ratios <- pp(z1)/(qq(z1)) 
+cc <- max(ratios) 
+df <- data.frame(z = z1,p = pp(z1),Cq = cc*qq(z1))
+
+plot1 <- ggplot(df, aes(x = z1)) + 
+  geom_line(aes(y = p, color = 'p(z)')) + 
+  geom_line(aes(y = Cq, color = 'Cq(z)')) + 
+  labs(title = "Comparison of p(z) and Cq(z)", 
+       y = "Density", 
+       color = "Function") + 
+  theme_classic()
+
+plot1
+
+```
+
+
+b)  Next, we generate $z\sim q(z)$, $u\sim Unif(0,Cq(z))$, and check
+        if $u\le p(z)$. Write a code for this procedure that takes $n$
+        as input and generates $n$ samples from $p$. On a plot, show
+        points that your algorithm rejected and points that it accepted
+        until it collected $n=30$ accepted sample points.
+```{r}
+n <- 30
+accepted <- 0
+z_vals <- numeric(0)
+u_vals <- numeric(0)
+colors <- character(0)
+
+p_function <- function(z) { 
+  return((2*exp(z)) / ((1 + exp(z))^2))
+}
+
+while (accepted < n) {
+  z <- rexp(1, 1)
+  u <- runif(1, 0, cc*exp(-z))
+  
+  z_vals <- c(z_vals, z)
+  u_vals <- c(u_vals, u)
+  
+  if (u <= p_function(z)) {
+    accepted <- accepted + 1
+    colors <- c(colors, "pink")
+  } else {
+    colors <- c(colors, "lightblue")
+  }
+}
+
+plot2 <- ggplot() +
+  geom_point(data=data.frame(z = z_vals, u = u_vals, colors = colors), aes(x = z, y = u, color = colors)) +
+  geom_line(data=df,aes(x = z1,y = p, color = "pink")) + 
+  geom_line(data=df,aes(x = z1,y = Cq, color = "lightblue")) + 
+  labs(title = "Rejection Sampling: Accepted vs. Rejected", x = "z", y = "u") +
+  scale_color_identity() +
+  theme_classic()
+plot2
+
+```
+
+c)  Use your algorithm to generate $n=10,000$ samples from $p$ to
+        approximate $\mathbb{P}(Z>1)$. Report the $95\%$ confidence
+        interval for your estimate.
+```{r} 
+set.seed(666)
+sample_accept <- numeric(0)
+sample_reject <- numeric(0)
+
+while (length(sample_accept) < 10000) {
+    z_val <- rexp(1, rate = 1)
+    threshold <- runif(1, min = 0, max = 1.999 * qq(z_val))
+    
+    if (threshold <= pp(z_val)) {
+        sample_accept <- c(sample_accept, z_val)
+    } else {
+        sample_reject <- c(sample_reject, z_val)
+    }
+    
+    if (length(sample_accept) >= 10000) break
+}
+
+y_samples <- sample_accept
+sample_mean <- mean(y_samples > 1)
+confidence_interval <- c(sample_mean - 1.96 * sqrt(sample_mean * (1 - sample_mean) / 10000),
+                         sample_mean + 1.96 * sqrt(sample_mean * (1 + sample_mean) / 10000))
+cat(sample_mean,"\n")
+cat(confidence_interval)
+```
+
+## Example 3
+In the book, the case of inference for the mean with known variance, the conjugate prior is the normal distribution. Show that for the case of inference for the variance with known mean, the conjugate prior is inverse gamma distribution. That is, prove that if the prior distribution is $$\frac{1}{\sigma^2}\mid\theta\sim gamma(\alpha,\beta)$$ then the posterior is $$\frac{1}{\sigma^2}\mid\theta\sim gamma\left(\alpha+\frac{n}{2},\beta+\frac{1}{2}\sum_{i=1}^n(y_i-\mu)^2\right)$$
+
+The prior distribution for \( \frac{1}{\sigma^2} \) is a gamma distribution:
+$$
+\frac{1}{\sigma^2} | \theta \sim \text{gamma}(\alpha, \beta) = \frac{\beta^\alpha}{\Gamma(\alpha)} \left(\frac{1}{\sigma^2}\right)^{\alpha - 1} e^{-\frac{\beta}{\sigma^2}} \propto \left(\frac{1}{\sigma^2}\right)^{\alpha - 1} e^{-\frac{\beta}{\sigma^2}}
+$$
+
+The likelihood of observing \( Y \) given \( \mu \) and \( \sigma^2 \) with a normal distribution:
+$$
+P(Y | \mu, \sigma^2) \sim \mathcal{N}(\mu, \sigma^2)
+$$
+The full likelihood is the product of the individual likelihoods of \( n \) observations:
+$$
+\prod_{i=1}^n \frac{1}{\sigma\sqrt{2\pi}} e^{-\frac{1}{2}\left(\frac{y_i - \mu}{\sigma}\right)^2}
+$$
+Which is proportional to:
+$$
+\propto \left(\frac{1}{\sigma}\right)^2 e^{-\frac{1}{2\sigma^2}\sum_{i=1}^n(y_i - \mu)^2}
+$$
+So the posterior distribution is:
+
+$$
+\frac{1}{\sigma^2} | \theta \propto \left(\frac{1}{\sigma^2}\right)^{\alpha - 1} e^{-\frac{\beta}{\sigma^2}} \left(\frac{1}{\sigma}\right)^{2} \exp\left(-\frac{1}{2\sigma^2}\sum_{i=1}^{n}(y_i-\mu)^2\right)
+$$
+
+$$
+= \left(\frac{1}{\sigma^2}\right)^{\alpha - 1} \left(\frac{1}{\sigma}\right)^{2} \exp\left(-\frac{\beta}{\sigma^2} - \frac{1}{2\sigma^2}\sum_{i=1}^{n}(y_i-\mu)^2\right)
+$$
+
+$$
+= \left(\frac{1}{\sigma^2}\right)^{\alpha - 1} \left(\frac{1}{\sigma}\right)^{2} \exp\left(-\frac{1}{\sigma^2}\left(\beta + \frac{1}{2}\sum_{i=1}^{n}(y_i-\mu)^2\right)\right)
+$$
+
+$$
+= \left(\frac{1}{\sigma^2}\right)^{\alpha-1+\frac{n}{2}} \exp\left(-\frac{1}{\sigma^2}\left(\beta + \frac{1}{2}\sum_{i=1}^{n}(y_i-\mu)^2\right)\right)
+$$
+
+Which means our posterior is:
+
+$$
+\sim \text{gamma}\left(\alpha - 1 + \frac{n}{2}, \beta + \frac{1}{2}\sum_{i=1}^{n}(y_i-\mu)^2\right)
+$$
+
+$$
+\sim \text{gamma}\left(\alpha + \frac{n}{2} - 1, \beta + \frac{1}{2}\sum_{i=1}^{n}(y_i-\mu)^2\right)
+$$
+
+
+## Example 4
+Consider the dataset $$y=\left(2.16,\;  0.74, \; 1.87, \; 3.03,\;  3.11, \; 2.74, \;1.23, \; 3.64, \;1.57,\; 2.12\right).$$ We model each data point as $y_i\sim \mathcal{N}(\theta,\sigma^2)$, with $\sigma=1$. We then assume as a prior distribution that $\theta\sim gamma(\alpha,\beta)$, where $\alpha=2$, and $\beta=0.5$.
+
+a.  Find the expression of the posterior distribution $p(\theta\vert y)$ of $\theta$ up to a proportionality constant.
+
+
+The posterior distribution \( p(\theta|y) \) is proportional to the likelihood times the prior:
+
+$$
+p(\theta|y) \propto p(y_1, \ldots, y_n|\theta, \sigma^2)p(\theta|\sigma^2)
+$$
+
+$$
+= \prod_{i=1}^{n} \frac{1}{\sqrt{2\pi\sigma^2}} \exp\left(-\frac{1}{2\sigma^2}(y_i - \theta)^2\right) \theta^{\alpha-1} e^{-\beta\theta} \frac{\beta^\alpha}{\Gamma(\alpha)}
+$$
+
+$$
+= \left(\frac{1}{\sqrt{2\pi\sigma^2}}\right)^n e^{-\frac{1}{2\sigma^2}\sum_{i=1}^{n}(y_i-\theta)^2} \cdot \theta^{\alpha-1}e^{-\beta\theta} \frac{\beta^\alpha}{\Gamma(\alpha)}
+$$
+
+
+then:
+
+$$
+p(\theta|y) \propto \left(\frac{1}{\sqrt{2\pi\sigma^2}}\right)^n e^{-\frac{1}{2\sigma^2}\sum_{i=1}^{n}(y_i-\theta)^2} \theta^{\alpha-1}e^{-\beta\theta}
+$$
+
+$$
+= 0.250 \left(\frac{1}{\sqrt{2\pi\sigma^2}}\right)^n e^{-\frac{1}{2\sigma^2}\sum_{i=1}^{n}(y_i-\theta)^2} \theta^{-\frac{1}{2}\theta}
+$$
+
+$$
+= 0.250 \left(\frac{1}{\sqrt{2\pi\sigma^2}}\right)^n e^{-\frac{1}{2\sigma^2}\sum_{i=1}^{n}(y_i-\theta)^2 + \theta}
+$$
+
+b.  Using importance sampling, explain how one can approximate the posterior mean of $\theta$ by generating random variables from the gamma prior distribution $gamma(\alpha,\beta)$ given above. Implement the method in [R]{.sans-serif}. Use it to estimate the posterior mean of $\theta$ by Monte Carlo, with $n=10,000$ Monte Carlo samples.
+
+We have a prior \( p(\theta) \sim \text{gamma}(2, 0.5) \) and a likelihood \( p(y|\theta) \sim \mathcal{N}(\theta, \sigma^2) \). The posterior distribution is proportional to the product of these two.
+
+The expectation \( \mathbb{E}[f(z)] \) can be estimated using importance sampling:
+
+$$
+\mathbb{E}[f(z)] \approx \frac{1}{S} \sum_{s=1}^{S} \frac{\tilde{p}(z^{(s)})}{q(z^{(s)})} f(z^{(s)})
+$$
+
+By sampling \( \theta_s \) from \( q(z) \) and computing weights \( w_s = \frac{p_s(y|\theta_s)}{q(\theta_s)} \), we can normalize the weights so they sum to one:
+
+$$
+w's = \frac{w_s}{\sum_{s=1}^{S} w_s}
+$$
+
+Finally, the posterior mean is approximated by the weighted sum of the samples:
+
+$$
+\mathbb{E}[f(z)] \approx \sum_{s=1}^{S} w's \cdot \theta_s
+$$
+
+This method allows for the approximation of the posterior mean using weighted samples from the importance distribution.
+
+```{r}
+sampleData <- c(2.16, 0.74, 1.87, 3.03, 3.11, 2.74, 1.23, 3.64, 1.57, 2.12)
+
+# Define prior distribution function and likelihood function
+generatePriorSamples <- function(sampleSize, shapeParam, rateParam){
+  return(rgamma(sampleSize, shapeParam, rateParam))
+}
+
+calculateLikelihood <- function(sampleTheta, standardDeviation, dataPoints){
+  sampleSize <- length(dataPoints)
+  return(prod(dnorm(dataPoints, mean = sampleTheta, sd = standardDeviation^2)))
+}
+
+normalizeWeights <- function(likelihoodValues, thetaSamples, shapeParam, rateParam){
+  weights <- likelihoodValues / dgamma(thetaSamples, shapeParam, rateParam)
+  return(weights / sum(weights))
+}
+
+performImportanceSampling <- function(sampleSize, observedData, priorShape, priorRate, modelSigma){
+  # Generate theta samples from the prior distribution
+  thetaSamples <- generatePriorSamples(sampleSize, priorShape, priorRate)
+  
+  # Calculate likelihood for each theta sample
+  likelihoodValues <- sapply(thetaSamples, calculateLikelihood, standardDeviation = modelSigma, dataPoints = observedData)
+  
+  # Normalize weights
+  normalizedWeights <- normalizeWeights(likelihoodValues, thetaSamples, priorShape, priorRate)
+  
+  # Estimate mean theta
+  estimatedMeanTheta <- sum(normalizedWeights * thetaSamples)
+  return(estimatedMeanTheta)
+}
+
+performImportanceSampling(sampleSize = 10000, observedData = sampleData, priorShape = 2, priorRate = 0.5, modelSigma = 1)
+
+```
+the posterior mean $\approx 2.2$
+
+c.  Repeat the same question, but this time using rejection sampling, based on the same gamma prior distribution $gamma(\alpha,\beta)$. (Hint: $\sum_{i=1}^n (y_i-\theta)^2 \geq \sum_{i=1}^n (y_i-\bar y)^2$, where $\bar y = n^{-1}\sum_{i=1}^n y_i$)
+
+```{r}
+sampleDataRejection <- c(2.16, 0.74, 1.87, 3.03, 3.11, 2.74, 1.23, 3.64, 1.57, 2.12)
+
+generateQSamples <- function(sampleSize){
+  return(rgamma(sampleSize, shape = 2, rate = 0.5))
+}
+
+calculatePTilde <- function(thetaSamples, observedData){
+  likelihoodProd <- sapply(thetaSamples, calculateLikelihood, standardDeviation = 1, dataPoints = observedData)
+  gammaDensity <- dgamma(thetaSamples, shape = 2, rate = 0.5)
+  return(likelihoodProd * gammaDensity)
+}
+
+findC <- function(thetaSamples, pTildeValues){
+  gammaDensity <- dgamma(thetaSamples, shape = 2, rate = 0.5)
+  return(max(pTildeValues / gammaDensity))
+}
+
+performRejectionSampling <- function(sampleSize, observedData){
+  thetaSamples <- generateQSamples(sampleSize)
+  pTildeValues <- calculatePTilde(thetaSamples, observedData)
+  C <- findC(thetaSamples, pTildeValues)
+  
+  acceptedSamples <- numeric(0)
+  while(length(acceptedSamples) < sampleSize){
+    candidateSample <- rgamma(1, shape = 2, rate = 0.5)
+    uniformSample <- runif(1, 0, C * dgamma(candidateSample, shape = 2, rate = 0.5))
+    
+    if (uniformSample <= calculatePTilde(candidateSample, observedData)){
+      acceptedSamples <- c(acceptedSamples, candidateSample)
+    }
+  }
+
+  return(mean(acceptedSamples))
+}
+
+performRejectionSampling(sampleSize = 10000, observedData = sampleDataRejection)
+
+```
+
+
+# 5 Historical Background
+
+This section provides an overview of the historical development of Bayesian theory and its significant impact on statistical decision theory. I will explore how these ideas have evolved over time and their profound influence on modern statistical methods.
+
+## The Evolution of Bayesian Theory
+
+Bayesian theory, named after Thomas Bayes, has its origins in the 18th century but did not gain widespread recognition until the work of Pierre-Simon Laplace, who independently formulated a similar theorem. Initially, Bayes' work focused on the problem of inverse probability, which today is foundational in Bayesian inference.
+
+The true potential of Bayesian methods began to be recognized in the 20th century with the development of more sophisticated statistical techniques. During this period, statisticians began to appreciate the flexibility of Bayesian methods for incorporating prior knowledge through probability distributions.
+
+## Integration into Statistical Decision Theory
+
+Statistical decision theory fundamentally deals with making decisions under uncertainty and has been significantly shaped by Bayesian principles. The integration of Bayesian methods into this field has allowed for a more nuanced approach to decision-making, where decisions are informed by prior beliefs and updated as new information becomes available.
+
+One key figure in this integration was Abraham Wald, who formalized the concept of decision functions in the mid-20th century. His work laid the groundwork for incorporating Bayesian strategies into decision-making processes, emphasizing the balance between risks and utilities in uncertain conditions.
+
+## Bayesian Influence on Modern Statistics
+
+Today, Bayesian methods are integral to a wide range of applications across different fields, including economics, medicine, and machine learning. The ability to update beliefs with new evidence makes Bayesian approaches particularly useful in dynamic environments where conditions rapidly change.
+
+The historical development of these methods illustrates a shift from purely theoretical formulations to practical applications that solve real-world problems. This evolution reflects a broader trend in statistics and probability theory, where practical considerations often drive theoretical advancements.
+The historical context of Bayesian theory and its role in shaping statistical decision theory highlights its importance in the advancement of modern statistical practices. As we continue to face new challenges in data analysis and decision-making, the principles of Bayesian inference remain relevant, guiding the development of new tools and methodologies.
+
+# 6 Conclusion
+This study note has provided a comprehensive overview of Chapter 6, focusing on the computational aspects of Bayes strategies within the framework of statistical decision theory. I explored the mathematical foundations, practical implementation in R, historical background, and the broader implications of these topics on modern statistical practices.
+
+## Key Takeaways
+
+- **Computational Efficiency**: Chapter 6 highlights an efficient method for computing Bayes strategies by transitioning from a priori to a posteriori probabilities. This approach significantly simplifies the computational demands and makes the application of Bayesian decision-making more practical in real-world scenarios.
+- **Mathematical Rigor**: I delved into the mathematical underpinnings of Bayes' theorem and its application in statistical decision theory. The ability to update decision-making strategies based on new data is a powerful aspect of Bayesian statistics, providing a flexible framework for handling uncertainty.
+- **Historical Context**: The historical development of Bayesian theory and its integration into decision theory has been pivotal. As statistical methodologies have evolved, the principles laid down by pioneers like Thomas Bayes and later expanded by others have become central to many modern analytical strategies.
+- **Practical Application in R**: By using R, I demonstrated how Bayes strategies can be implemented to update beliefs and make informed decisions in uncertain conditions. The practical examples provided illustrate how these computational techniques can be applied to real-world data.
+
+
+# References
+1. Kruschke J K. Bayesian data analysis[J]. Wiley Interdisciplinary Reviews: Cognitive Science, 2010, 1(5): 658-676.
+2. Gelman A, Carlin J B, Stern H S, et al. Bayesian data analysis[M]. Chapman and Hall/CRC, 1995.
+3. Bernardo J M, Smith A F M. Bayesian theory[M]. John Wiley & Sons, 2009.
+4. Robert C P. The Bayesian choice: from decision-theoretic foundations to computational implementation[M]. New York: Springer, 2007.
